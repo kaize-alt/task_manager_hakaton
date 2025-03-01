@@ -1,10 +1,17 @@
 from django.contrib import admin
-from .models import Board, Task, Comment
+from .models import Board, Table, Task, Comment
 
 @admin.register(Board)
 class BoardAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_at')
     search_fields = ('name',)
+    ordering = ('-created_at',)
+
+
+@admin.register(Table)
+class TableAdmin(admin.ModelAdmin):
+    list_display = ('name', 'board', 'created_at')
+    search_fields = ('name', 'board__name')
     ordering = ('-created_at',)
 
 

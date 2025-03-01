@@ -11,6 +11,20 @@ class Board(models.Model):
 
     class Meta:
         verbose_name = "Board"
+        verbose_name_plural = "Boards"
+
+
+class Table(models.Model):
+    name = models.CharField(max_length=255)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name="tables")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.board.name})"
+
+    class Meta:
+        verbose_name = "Table"
+        verbose_name_plural = "Tables"
 
 
 class Task(models.Model):
@@ -32,7 +46,7 @@ class Task(models.Model):
         choices=STATUS_CHOICES,
         default="To Do",
     )
-    priority = models.IntegerField(PRIORITY_CHOICES, default=2)
+    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
     deadline = models.DateTimeField(null=True, blank=True)
 
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="created_tasks")
@@ -40,7 +54,9 @@ class Task(models.Model):
         CustomUser, on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="assigned_tasks")
+        related_name="assigned_tasks"
+    )
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name="tasks")  # Привязка к таблице
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -48,14 +64,13 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title} ({self.status})"
 
-
-class Meta:
+    class Meta:
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
 
 
 class Comment(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
