@@ -87,6 +87,7 @@ celerybeat-schedule
 environments/
 .env_local
 .env_docker
+.env
 venv/
 ENV/
 env.bak/
