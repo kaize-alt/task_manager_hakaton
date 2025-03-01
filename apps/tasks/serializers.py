@@ -9,12 +9,42 @@ class BoardSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "created_at")
 
 
+class BoardCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ("name",)
+
+
+class BoardUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ("name",)
+
+
 class TableSerializer(serializers.ModelSerializer):
     board_name = serializers.CharField(source="board.name", read_only=True)
 
     class Meta:
         model = Table
         fields = ("id", "name", "board", "board_name", "created_at")
+
+
+class TableCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ("name", "board")
+
+
+class TableUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ("name", "board")
+
+
+class TableDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ("id",)
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -53,3 +83,9 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ("id", "task", "user", "user_name", "text", "created_at")
+
+
+class CommentUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("text",)

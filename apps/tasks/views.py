@@ -5,8 +5,10 @@ from rest_framework import mixins, viewsets, status
 
 from .models import Board, Table, Task, Comment
 from .serializers import (
-    BoardSerializer, TableSerializer, TaskSerializer,
-    TaskListSerializer, TaskUpdateSerializer, CommentSerializer
+    BoardSerializer, BoardCreateSerializer, BoardUpdateSerializer,
+    TableSerializer, TableCreateSerializer, TableUpdateSerializer,
+    TaskSerializer, TaskListSerializer, TaskUpdateSerializer,
+    CommentSerializer, CommentUpdateSerializer
 )
 
 
@@ -15,11 +17,62 @@ class BoardViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = BoardSerializer
 
 
+class BoardCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = Board.objects.all()
+    serializer_class = BoardCreateSerializer
+    def get_serializer_class(self ):
+        if self.action == 'create':
+            return BoardCreateSerializer
+        return BoardSerializer
+
+class BoardUpdateViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    queryset = Board.objects.all()
+    serializer_class = BoardUpdateSerializer
+
+
+class BoardDeleteViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    queryset = Board.objects.all()
+    serializer_class = BoardSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        board_id = kwargs.get("pk")
+        try:
+            board = Board.objects.get(id=board_id)
+            board.delete()
+            return Response({"success": "Доска удалена"}, status=status.HTTP_200_OK)
+        except Board.DoesNotExist:
+            return Response({"error": "Доска не найдена"}, status=status.HTTP_404_NOT_FOUND)
+
+
 class TableViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ["board"]
+
+
+class TableCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = Table.objects.all()
+    serializer_class = TableCreateSerializer
+
+
+class TableUpdateViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    queryset = Table.objects.all()
+    serializer_class = TableUpdateSerializer
+
+
+class TableDeleteViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    queryset = Table.objects.all()
+    serializer_class = TableSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        table_id = kwargs.get("pk")
+        try:
+            table = Table.objects.get(id=table_id)
+            table.delete()
+            return Response({"success": "Таблица удалена"}, status=status.HTTP_200_OK)
+        except Table.DoesNotExist:
+            return Response({"error": "Таблица не найдена"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class TaskViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -77,3 +130,8 @@ class CommentViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.Ge
         comment = serializer.save()
 
         return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
+
+
+class CommentUpdateViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentUpdateSerializer
