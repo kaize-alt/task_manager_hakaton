@@ -6,7 +6,19 @@ from apps.users.models import CustomUser
 class BoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
-        fields = ("id", "name", "created_at",)
+        fields = ("id", "name", "created_at")
+
+
+class BoardCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ("name",)
+
+
+class BoardUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ("name",)
 
 
 class TableSerializer(serializers.ModelSerializer):
@@ -14,7 +26,25 @@ class TableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Table
-        fields = ("id", "name", "board", "board_name", "created_at",)
+        fields = ("id", "name", "board", "board_name", "created_at")
+
+
+class TableCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ("name", "board")
+
+
+class TableUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ("name", "board")
+
+
+class TableDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ("id",)
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -27,7 +57,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = (
             "id", "title", "description", "status", "priority", "deadline",
             "author", "author_name", "assigned_to", "assigned_to_name", "table", "table_name",
-            "created_at", "updated_at",
+            "created_at", "updated_at"
         )
 
 
@@ -37,14 +67,14 @@ class TaskListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ("id", "title", "status", "priority", "deadline", "author_name", "assigned_to_name", "created_at",)
+        fields = ("id", "title", "status", "priority", "deadline", "author_name", "assigned_to_name", "created_at")
 
 
 
 class TaskUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ("status", "priority", "assigned_to", "deadline",)
+        fields = ("status", "priority", "assigned_to", "deadline")
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -52,4 +82,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ("id", "task", "user", "user_name", "text", "created_at",)
+        fields = ("id", "task", "user", "user_name", "text", "created_at")
+
+
+class CommentUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("text",)

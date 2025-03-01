@@ -3,7 +3,6 @@ from distutils.util import strtobool
 from pathlib import Path
 from datetime import timedelta
 import environ
-from celery.schedules import crontab
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,7 +32,6 @@ INSTALLED_APPS = [
     #remote_libraries
     "psycopg2",
     "rest_framework",
-    'rest_framework_simplejwt',
     "ckeditor",
     'django_filters',
     'drf_spectacular',
@@ -41,6 +39,7 @@ INSTALLED_APPS = [
     #local_apps
     'apps.tasks',
     'apps.users',
+    'apps.tg_bot',
 ]
 
 MIDDLEWARE = [
@@ -79,11 +78,14 @@ WSGI_APPLICATION = 'hakaton.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',  # Путь к базе данных
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get("POSTGRES_DB"),
+        'USER': os.environ.get("POSTGRES_USER"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT")
     }
 }
-
 
 
 # Password validation
@@ -132,10 +134,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN')
+BOT_CHAT_ID=env('BOT_CHAT_ID')
+
+REDIS_HOST = env("REDIS_HOST")
+REDIS_PORT = env("REDIS_PORT")
+REDIS_DB = env("REDIS_DB")
+REDIS_CELERY_DB = env("REDIS_CELERY_DB")
+
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # Указываем только AutoSchema
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Здесь указать аутентификацию JWT
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
@@ -151,8 +161,11 @@ SPECTACULAR_SETTINGS = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Установите нужное время жизни токена
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Время жизни refresh токена
-    'ROTATE_REFRESH_TOKENS': False,  # Нужно ли обновлять refresh токен
-    'BLACKLIST_AFTER_ROTATION': True,  # Нужно ли добавлять токен в blacklist после ротации
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
+
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
