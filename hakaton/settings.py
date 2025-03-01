@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     #remote_libraries
     "psycopg2",
     "rest_framework",
+    'rest_framework_simplejwt',
     "ckeditor",
     'django_filters',
     'drf_spectacular',
@@ -78,14 +79,11 @@ WSGI_APPLICATION = 'hakaton.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get("POSTGRES_DB"),
-        'USER': os.environ.get("POSTGRES_USER"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-        'HOST': os.environ.get("DB_HOST"),
-        'PORT': os.environ.get("DB_PORT")
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # Путь к базе данных
     }
 }
+
 
 
 # Password validation
@@ -135,15 +133,26 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # Указываем только AutoSchema
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Здесь указать аутентификацию JWT
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "TG_APP",
-    "VERSION": "0.0.1",
+    'DESCRIPTION': 'API documentation',
+    "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_SETTINGS": {
         "filter": True,
     },
     "COMPONENT_SPLIT_REQUEST": True
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Установите нужное время жизни токена
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Время жизни refresh токена
+    'ROTATE_REFRESH_TOKENS': False,  # Нужно ли обновлять refresh токен
+    'BLACKLIST_AFTER_ROTATION': True,  # Нужно ли добавлять токен в blacklist после ротации
 }
