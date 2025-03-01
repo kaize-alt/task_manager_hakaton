@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from apps.users.models import CustomUser
 
 
 class Board(models.Model):
@@ -15,30 +15,48 @@ class Board(models.Model):
 
 class Task(models.Model):
     STATUS_CHOICES = [
-        ('todo', 'To Do'),
-        ('in_progress', 'In Progress'),
-        ('done', 'Done'),
+        ("To Do", "To Do"),
+        ("In Progress", "In Progress"),
+        ("Done", "Done"),
     ]
+    PRIORITY_CHOICES = [
+        (1, "Low"),
+        (2, "Medium"),
+        (3, "High"),
+    ]
+
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='todo')
-    priority = models.IntegerField(default=1)
-    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="To Do",
+    )
+    priority = models.IntegerField(PRIORITY_CHOICES, default=2)
+    deadline = models.DateTimeField(null=True, blank=True)
+
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="created_tasks")
+    assigned_to = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_tasks")
+
     created_at = models.DateTimeField(auto_now_add=True)
-    due_date = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.title
+        return f"{self.title} ({self.status})"
 
-    class Meta:
+
+class Meta:
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
 
 
 class Comment(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
