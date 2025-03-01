@@ -3,7 +3,6 @@ from distutils.util import strtobool
 from pathlib import Path
 from datetime import timedelta
 import environ
-from celery.schedules import crontab
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +39,7 @@ INSTALLED_APPS = [
     #local_apps
     'apps.tasks',
     'apps.users',
+    'apps.tg_bot',
 ]
 
 MIDDLEWARE = [
@@ -134,6 +134,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN')
+BOT_CHAT_ID=env('BOT_CHAT_ID')
+
+REDIS_HOST = env("REDIS_HOST")
+REDIS_PORT = env("REDIS_PORT")
+REDIS_DB = env("REDIS_DB")
+REDIS_CELERY_DB = env("REDIS_CELERY_DB")
+
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
@@ -147,3 +155,6 @@ SPECTACULAR_SETTINGS = {
     },
     "COMPONENT_SPLIT_REQUEST": True
 }
+
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
